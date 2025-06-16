@@ -9,9 +9,9 @@ import csv_out
 from datetime import datetime
 
 
-db = "./Deliverables/Portugese-Site/CPV"
+db = "./CPV"
 table ="CPVs"
-csv_ ="./Deliverables/Portugese-Site/CPV"
+csv_ ="./CPV"
 site = 'https://www.base.gov.pt/Base4/en/'
 cpv = ['30192000-1']
 setup_columns_link = 'https://www.base.gov.pt/Base4/en/detail/?type=contratos&id=11512833'

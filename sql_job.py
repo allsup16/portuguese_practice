@@ -1,8 +1,6 @@
-import sys
 import os
+import sys
 import sqlite3
-path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..','SQL'))
-sys.path.insert(0,path)
 import sql_custom
 
 def create_table_statement(database_name,table_name,primary=None,columns=None,unique=None):

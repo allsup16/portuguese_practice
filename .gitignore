@@ -1,2 +1,3 @@
-./CPV.csv
-./CPV.db
+__pycache__/
+*.csv
+*.db
