@@ -57,6 +57,16 @@ class selenium:
                 selection.append([item])
         return selection
     
+    def find_element(self, func, search_term, get_att=None, get_text=False):
+        item = self.driver.find_element(func, search_term)
+    
+        if get_att is not None:
+            return item.get_attribute(get_att)
+        elif get_text:
+            return item.text
+        else:
+            return item
+    
     def wait_until_enabled(self, by, selector, timeout=30):
         WebDriverWait(self.driver, timeout).until(
         lambda d: d.find_element(by, selector).get_attribute("disabled") is None)
@@ -80,28 +90,57 @@ class selenium:
             self.driver.execute_script(f"window.scrollTo(0, {current_position});")
             time.sleep(delay)
 
-    def new_page_wait(self,timeout=30):
-        old_url = self.site
-        WebDriverWait(self.driver, timeout).until(lambda d: d.current_url != old_url)
-        self.site = self.driver.current_url
     
-    def wait_to_load(self, func, search_term, sleep=10, only_visual=True,new_page_timer=-1):
-        if new_page_timer > 0:
-            self.new_page_wait(new_page_timer)
+    def wait_to_load(self, func, search_term, sleep=10, only_visual=True):
         wait = WebDriverWait(self.driver, sleep)
         if only_visual:
             wait.until(EC.visibility_of_element_located((func, search_term)))
         else:
             wait.until(EC.element_to_be_clickable((func, search_term)))
+        self.site = self.driver.current_url
+        self.custom_sleep()
 
-    def wait_for_tab(self):
-        WebDriverWait(self.driver, 10).until(lambda d: len(d.window_handles) > 1)
-        new_tab = [h for h in self.driver.window_handles if h != self.tab][0]
-        self.driver.switch_to.window(new_tab)
-        self.tab = new_tab
+    def switch_tab(self, mode="original", index=None, timeout=10):
+        """
+        Switches the driver's tab.
+
+        Parameters:
+            - mode: "original", "latest", "wait_latest", or "index"
+            - index: required for mode="index"
+        """
+        handles = self.driver.window_handles
+
+        if mode == "original":
+            self.driver.switch_to.window(handles[0])
+            self.tab = handles[0]
+
+        elif mode == "latest":
+            self.driver.switch_to.window(handles[-1])
+            self.tab = handles[-1]
+
+        elif mode == "wait_latest":
+            WebDriverWait(self.driver, timeout).until(lambda d: len(d.window_handles) > 1)
+            new_tabs = [h for h in self.driver.window_handles if h != self.tab]
+            if new_tabs:
+                self.driver.switch_to.window(new_tabs[-1])
+                self.tab = new_tabs[-1]
+            else:
+                raise Exception("No new tab detected after waiting.")
+
+        elif mode == "index":
+            if index is None or index >= len(handles):
+                raise ValueError(f"Tab index {index} is out of range.")
+            self.driver.switch_to.window(handles[index])
+            self.tab = handles[index]
+
+        else:
+            raise ValueError(f"Unknown switch_tab mode: {mode}")
+        self.custom_sleep()
+
 
     def custom_sleep(self,sleep=5):
         time.sleep(sleep)
+
 
     def close_page(self):
         self.driver.quit()

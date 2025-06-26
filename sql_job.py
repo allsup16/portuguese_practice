@@ -43,7 +43,7 @@ def all_rows(database_name,table_name):
     cursor = conn.cursor()
     query = sql_custom.select('*')+sql_custom.from_(table_name)
     cursor.execute(query)
-    result=cursor.fetchone()
+    result=cursor.fetchall()
     conn.commit()
     conn.close()
     return result
